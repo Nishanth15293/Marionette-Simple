@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Marionette App2</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.marionette/2.4.4/backbone.marionette.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <!-- <script src="js/MyApp.js"></script>-->
+</head>
+<body>
+<!--<h3> Hello World</h3>-->
+<!--<hr/>-->
+
+<div id="app">
+
+</div>
+
+<div class="col-md-12" id="side">
+
+</div>
+
+<div class="col-md-12" id="bottom">
+
+</div>
+
+
+
+</body>
+
+<script id="home-template" type="text/x-backbone">
+
+        <h3>Welcome Home!</h3>
+        <p>Click on the Candidate Name to check his skills!!</p>
+        <button type = "button" class ="btn btn-primary btn-lg">Nishanth</button>
+
+
+</script>
+
+<script id="skill-layout-template" type="text/x-backbone">
+
+    <div class="row" style="text-align:center" >
+    <div style="margin-left:1% "><h1 class="jumbotron"><%- skill%></h1></div>
+
+    </div>
+
+    <div class = "row">
+      <div id="summary" class="col-md-6"></div>
+       <div id="detail" class="col-md-6"></div>
+    </div>
+</script>
+<script id="summary-template" type="text/x-backbone">
+<div style="background-color:#e5e5e5">
+    <h3>Here goes my summary for <%-skill%></h3>
+
+    <ul>
+        <li>Proficiency : <%-proficiency%></li>
+        <li>Experience : <%-exp%></li>
+        <li>Related Projects : <%-project%></li>
+        <p>Disclaimer : All details mentioned are fictious/random and not original :p </p>
+    </ul>
+</div>
+</script>
+<script id="detail-template" type="text/x-backbone">
+<div style="background-color:#e5e5e5">
+    <h2>Here goes skill details</h2>
+    <p>Need to know more about this?Click Below.</p><a href="<%-url%>"><%-skill%></a>
+</div>
+</script>
+
+<script id="review-template" type="text/x-backbone">
+<div class="row" >
+    <p> Name:<%-name%></p>
+    <p> Review: <%-review%></p>
+    <hr/>
+</div>
+</script>
+
+<script id="reviewList-template" type="text/x-backbone">
+    <h1> Reviews </h1>
+</script>
+
+<script id="reviewForm-template" type="text/x-backbone">
+    <h3>Please give your Feedback/Review/Recommendations/Suggestions</h3>
+  <!--  <p> Name: <input type="text" id="name"/></p>
+    <p> Comments/Review : <input type="text" id="review"/></p>
+    <button type="button" class="btn btn-Primary">Add Review </button>-->
+    <form>
+  <div class="form-group">
+    <label for="name">Name :</label>
+    <input type="text" class="form-control" id="name" placeholder="Name">
+  </div>
+  <div class="form-group">
+    <label for="review1">Review</label>
+    <input type="text" class="form-control" id="review1" placeholder="Say Something here...">
+    <hr/>
+    <button type="button" class="btn btn-Primary">Add Review </button>
+  </div>
+
+</form>
+</script>
+
+</html>
+
+<script>
+
+    testData = [
+        {id:1, skill : "JavaScript", proficiency: "High", exp: "2yrs",project:"TweetsApp, Almost Every Project!",url:"https://en.wikipedia.org/wiki/JavaScript"},
+        {id:2, skill: "AngularJS", proficiency: "High", exp: "1yrs",project:"TweetsApp, MEAN Website",url:"https://angularjs.org/"},
+        {id:3, skill: "NodeJS", proficiency: "High", exp: "1yrs",project:"TweetsApp, ACME Financial App", url:"https://nodejs.org/en/"},
+        {id:4, skill: "MongoDB", proficiency: "Med-High", exp: "1yrs",project:"TweetsApp, MEAN website", url:"https://www.mongodb.com/"},
+        {id:5, skill: "HTML", proficiency: "High", exp: "3yrs",project:"TweetsApp, Key Aggregate Cryptosystem", url:"https://en.wikipedia.org/wiki/HTML"},
+        {id:5, skill: "Java", proficiency: "Med-High", exp: "3yrs",project:"Key Aggregate Cryptosystem", url:"https://www.java.com/en/"},
+        {id:6, skill: "CSS", proficiency: "High", exp: "3yrs",project:"Fire Lounge Menu, Key Aggregate Cryptosystem", url:"https://en.wikipedia.org/wiki/Cascading_Style_Sheets"},
+        {id:7, skill: "Bootstrap", proficiency: "High", exp: "2yrs",project:"Fire Lounge Menu, Key Aggregate Cryptosystem", url:"http://getbootstrap.com/"},
+        {id:8, skill: "PHP", proficiency: "low", exp: "0yrs",project:"none", url:"http://php.net/"},
+        {id:9, skill: "Backbone.js", proficiency: "yet to be certified", exp: "0yrs",project: "The one you are currently viewing", url:"http://backbonejs.org/"},
+        {id:10, skill: "Marionette.js", proficiency: "learning exponentially", exp: "0yrs",project: "The one you are currently viewing", url:"http://marionettejs.com/"}
+
+    ];
+
+    //======================Inits=================================
+    var MyApp = new Marionette.Application();
+
+
+
+    //========================Router===============================
+
+    var AppRouter = Backbone.Router.extend({
+        routes:{
+            "":"showHome",
+            "userSkills": "showSkills",
+            "userSkills/:skill" : "showSkillDetails"
+        } ,
+        showHome : function(){
+            MyApp.AppCtrl.showHome();
+            MyApp.sideRegion.empty();
+            MyApp.bottomRegion.empty();
+        },
+        showSkills : function(){
+            MyApp.AppCtrl.showSkills();
+            MyApp.sideRegion.empty();
+            MyApp.bottomRegion.empty();
+        },
+        showSkillDetails : function(id){
+            MyApp.AppCtrl.showSkillDetails(id);
+        }
+    });
+
+    //========================Controller===========================
+
+    var AppCtrl = Marionette.Controller.extend({
+        showHome : function(){
+            MyApp.mainRegion.show(new HomeView());
+        },
+        showSkills : function(){
+            var userSkillListView = new UserSkillsListView({collection: MyApp.Users});
+            MyApp.mainRegion.show(userSkillListView);
+            MyApp.Router.navigate("userSkills");
+        },
+        showSkillDetails : function(id){
+            var skill = MyApp.Users.get(id);
+
+            var layout = new SkillLayoutView({model : skill});
+            MyApp.mainRegion.show(layout);
+            layout.summary.show(new SkillSummaryView({model : skill}));
+            layout.detail.show(new SkillDetailView({model : skill}));
+
+            MyApp.reviewCollection = new ReviewCollection();
+            MyApp.sideRegion.show(new ReviewFormView({collection: MyApp.reviewCollection}));
+            MyApp.bottomRegion.show(new ReviewListView({collection : MyApp.reviewCollection}));
+
+            MyApp.Router.navigate("userSkills/"+id);
+
+        }
+    });
+
+    //=========================Initializer=========================
+
+    MyApp.addInitializer(function(){
+        MyApp.addRegions ({
+            mainRegion : "#app",
+            sideRegion : "#side",
+            bottomRegion : "#bottom"
+        });
+
+        MyApp.AppCtrl = new AppCtrl();
+        MyApp.Router = new AppRouter();
+        MyApp.Users = new UsersCollection(testData);
+        Backbone.history.start();
+    });
+
+    //=========================Data================================
+
+    var UsersCollection = Backbone.Collection.extend({
+        url: "/api/skills"
+    });
+
+    var ReviewModel = Backbone.Model.extend({});
+
+    var ReviewCollection = Backbone.Collection.extend({
+        model : ReviewModel
+    });
+
+    //========================Views================================
+
+    var HomeView = Marionette.ItemView.extend({
+        template:"#home-template",
+        events:{
+            "click button": "showSkills"
+        },
+        showSkills: function(ev){
+            ev.preventDefault();
+            MyApp.AppCtrl.showSkills();
+        }
+    });
+
+    var UserSkillView = Marionette.ItemView.extend({
+        tagName: "li",
+        template: _.template( "<a href=#><%-skill%></a>"),
+        events : {
+            "click a" : "showSkillDetails"
+        },
+
+        showSkillDetails : function(ev){
+            ev.preventDefault();
+            MyApp.AppCtrl.showSkillDetails(this.model.id);
+        }
+
+    });
+
+    var UserSkillsListView = Marionette.CollectionView.extend({
+        tagName: "ul",
+        childView: UserSkillView,
+        onBeforeRender(){
+            this.$el.append("<h2 class='jumbotron'>Skills</h2>")
+        }
+    });
+
+    var SkillLayoutView = Marionette.LayoutView.extend({
+        template : "#skill-layout-template",
+        regions : {
+            summary : "#summary",
+            detail : "#detail"
+        }
+    });
+
+    var SkillSummaryView = Marionette.ItemView.extend({
+        template: "#summary-template"
+    });
+
+    var SkillDetailView = Marionette.ItemView.extend({
+        template: "#detail-template"
+    });
+
+    // MyApp.mainRegion.show(new HomeView());
+
+     var ReviewView = Marionette.ItemView.extend({
+     template : "#review-template"
+     });
+
+     var ReviewListView = Marionette.CollectionView.extend({
+        childView : ReviewView,
+         onBeforeRender(){
+             this.$el.append("<h2>Reviews</h2>")
+         }
+    });
+
+    var ReviewFormView = Marionette.ItemView.extend({
+        template : "#reviewForm-template",
+        events:{
+            "click button": "addReview"
+        },
+        ui:{
+            name : "#name",
+            review : "#review"
+        },
+        addReview: function(){
+            this.collection.add({
+                name : this.ui.name.val(),
+                review : this.ui.review.val()
+            });
+            name : this.ui.name.val("");
+            review : this.ui.review.val("");
+        }
+    });
+
+    MyApp.start();
+
+</script>
+
